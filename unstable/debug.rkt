@@ -20,7 +20,7 @@
          parameterize/debug)
 
 (require racket/match
-         unstable/pretty
+         racket/pretty
          syntax/srcloc
          syntax/location
          racket/syntax
@@ -148,7 +148,7 @@
   (define (err e)
     (if (exn? e)
       (dprintf "raised exception: ~a" (exn-message e))
-      (dprintf "raised non-exception: ~a" (pretty-format/print e)))
+      (dprintf "raised non-exception: ~a" (pretty-format e)))
     (raise e))
 
   (define depth (current-debug-depth))
@@ -157,7 +157,7 @@
 
     (lambda ()
       (parameterize ([current-debug-depth depth])
-        (dprintf ">> ~a~a" src (pretty-format/write name 'infinity))))
+        (dprintf ">> ~a~a" src (pretty-format name 'infinity #:mode 'write))))
 
     (lambda ()
       (parameterize ([current-debug-depth (add1 depth)])
@@ -166,18 +166,18 @@
             (match-lambda*
               [(list v)
                (dprintf "result: ~a"
-                 (pretty-format/print v 'infinity))
+                 (pretty-format v 'infinity))
                v]
               [(list vs ...)
                (dprintf "results: (values~a)"
                  (apply string-append
                    (for/list ([v (in-list vs)])
-                     (string-append " " (pretty-format/print v 'infinity)))))
+                     (string-append " " (pretty-format v 'infinity)))))
                (apply values vs)])))))
 
     (lambda ()
       (parameterize ([current-debug-depth depth])
-        (dprintf "<< ~a~a" src (pretty-format/write name 'infinity))))))
+        (dprintf "<< ~a~a" src (pretty-format name 'infinity #:mode 'write))))))
 
 (define (dprintf fmt . args)
   (define message (apply format fmt args))
